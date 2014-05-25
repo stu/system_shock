@@ -3,6 +3,8 @@ System Shock
 
 System Shock is an Open Source Pinball controller system consisting of hardware schematics and source code to drive the system.
 
+Current Status
+==============
 *This is a very early work in progress that requires a lot more testing and design review.*
 
 

@@ -6,27 +6,18 @@
 
 struct solenoid_mailbox cogdata[7];
 
-/*
-
-initial_pulse_time_min/max - how many MS to fire coil for, min/max gives random
-pulse_pause_time - if hold pin != 0xFF
-pulse_hold_time - how many MS to hold on before going off
-//hold_pin - after powering up, if pin is still on, go into hold mode...
-
- */
-
+// configuration set over the wire by the master control board
 HUBDATA volatile uint16_t initial_pulse_time_min[MAX_SOL];
 HUBDATA volatile uint16_t initial_pulse_time_max[MAX_SOL];
 HUBDATA volatile uint16_t pulse_pause_time[MAX_SOL];
 HUBDATA volatile uint16_t pulse_hold_time[MAX_SOL];
 
-//HUBDATA volatile uint32_t cog_actions[MAX_SOL];
-
+// These change each time coils fire
 HUBDATA volatile uint32_t state[MAX_SOL];
-
 HUBDATA volatile uint32_t power_on_ms[MAX_SOL];
 HUBDATA volatile uint32_t cnt_start[MAX_SOL];
 
+// each cog gets its own variable so we can go lockless
 HUBDATA volatile uint32_t solenoid_pins0;
 HUBDATA volatile uint32_t solenoid_pins1;
 HUBDATA volatile uint32_t solenoid_pins2;
@@ -34,7 +25,6 @@ HUBDATA volatile uint32_t solenoid_pins3;
 HUBDATA volatile uint32_t solenoid_pins4;
 HUBDATA volatile uint32_t solenoid_pins5;
 HUBDATA volatile uint32_t solenoid_pins6;
-
 
 
 /* cause all internal data state to reset */
@@ -48,17 +38,7 @@ HUBDATA volatile uint32_t solenoid_pins6;
 
 
 /*
- * These pins are numbered for the Sparkfun P8X32A board, so pin 14 is mapped not directly to pin 14
- * and it skips over the gnd/vss/tx etc pins.
- *
- * if porting to a non sparkfun board, pin assignments will need to change.
- *
- * quickstart pins should also map to the same as the sparkfun pinout
- *
- *
- * **
- * Can wire 8 pins as direct solenoids
- *
+ * These pins map as written in the data sheet.
  */
 
 // direct message communication
@@ -89,10 +69,6 @@ HUBDATA volatile uint32_t solenoid_pins6;
 #define HC595_LATCH			18
 #define WATCHDOG			19
 
-// pins left over
-// 20, 21, 22, 23, 24, 25
-
-
 #define PIN_HIGH(a)		(OUTA |= (1 << (a)))
 #define PIN_LOW(a)		(OUTA &= ~(1 << (a)))
 #define READ_PIN(a)		(INA & (1 << (a)) )
@@ -112,16 +88,15 @@ static uint32_t read_command_word (int blocking)
 			return 0;
 	}
 
-	// get 16 bits, say we got it
+	// get 16 bits and say we got it
 	data = ((INA >> COMMS_D1) & 0xFFFF);
-
 	PIN_HIGH(RCV_OK);
 
 	// wait for RCV to go low
 	while (READ_PIN(RCV_PIN) == 1)
 		;
 
-	// put OK low
+	// put OK low so we are ready for next communication
 	PIN_LOW(RCV_OK);
 
 	return data;

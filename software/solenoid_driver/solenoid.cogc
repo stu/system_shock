@@ -41,7 +41,14 @@ _NATIVE void main (void *mailbox)
 
 				case STATE_FIRE:
 					// **FIRE** solenoid. Calculate initial pulse time.
+
+					// dont fire if our config is zeroed out
 					power_on_ms[q] = initial_pulse_time_min[q];
+					if (power_on_ms[q] == 0)
+					{
+						state[q] = STATE_DONE;
+						break;
+					}
 
 					if (initial_pulse_time_max[q] > 0)
 					{
