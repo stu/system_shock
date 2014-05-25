@@ -1,0 +1,6 @@
+nbproject
+*.cog
+*.map
+software/solenoid_driver/main.prop
+.makefile
+

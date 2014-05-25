@@ -1,0 +1,138 @@
+#include <propeller.h>
+#include <stdint.h>
+
+#include "solenoid.h"
+
+#define GLUER(y,z) y ## z
+#define SPINS(x) GLUER(solenoid_pins, x)
+
+_NATIVE void main (void *mailbox)
+{
+	int i;
+	int q;
+	uint32_t pinflags;
+
+	while (1)
+	{
+		// timer test
+		for (i = 0, q = (XCOGX_IDX * (SOLS_PER_COG));
+#if XCOGX_IDX == 7
+			i < SOLS_PER_COG - ((XCOGIDX * SOLS_PER_COG) - 32);
+#else
+			i < SOLS_PER_COG;
+#endif
+			i++, q++)
+		{
+			pinflags = 1 << q;
+
+			// double check pin was released and clear it out
+			// pin goes low, action goes to zero!
+			if (state[q] == STATE_NOTHING)
+			{
+				// whenever we hit state0, make sure we pin is off
+				SPINS(XCOGX_IDX) &= ~pinflags;
+			}
+
+			switch (state[q])
+			{
+					// do nothing.
+				case STATE_NOTHING:
+					break;
+
+				case STATE_FIRE:
+					// **FIRE** solenoid. Calculate initial pulse time.
+					power_on_ms[q] = initial_pulse_time_min[q];
+
+					if (initial_pulse_time_max[q] > 0)
+					{
+						power_on_ms[q] += (CNT % initial_pulse_time_max[q]);
+					}
+
+					// fire MOSFET and wait the specified MS time,
+					// then turn off the MOSFET
+					SPINS(XCOGX_IDX) |= pinflags;
+
+					// hold start... not necesarily when triggered!
+					// add 0ms to allow cog0 to trigger it!
+					cnt_start[q] = CNT + (ONE_MS * 0);
+					state[q] = STATE_FIRING;
+
+					// fall through the case into next step. dont break  here.
+					//break;
+
+				case STATE_FIRING:
+					// were set up, SOLENOID POWER IS ON!
+					if ((CNT - cnt_start[q]) > power_on_ms[q])
+					{
+						if (pulse_pause_time[q] > 0)
+						{
+							// while hold pin input is high
+							if ((SPINS(XCOGX_IDX) & (1 << i)) == 1)
+							{
+								// turn it off
+								// wait Xms time
+								// turn it on
+								// wait Yms time
+								// repeat....
+
+								state[q] = STATE_PULSE_PAUSE;
+
+								// power it down and wait
+								SPINS(XCOGX_IDX) &= ~pinflags;
+
+								// add 0ms to allow cog0 to trigger it!
+								cnt_start[q] = CNT + (ONE_MS * 0);
+							}
+						}
+						else
+						{
+							// no hold time, so turn it off and reset
+							SPINS(XCOGX_IDX) &= ~pinflags;
+							state[q] = STATE_DONE;
+						}
+					}
+					break;
+
+				case STATE_PULSE_PAUSE:
+					// POWE IS OFF, now we wait Zms in OFF state
+					// we go into a no-power state for a little bit WHILE the pin is on.
+					if ((CNT - cnt_start[q]) > pulse_pause_time[q])
+					{
+						// we waited X ms while powered OFF.
+						// now turn it on for Yms
+						SPINS(XCOGX_IDX) |= pinflags;
+
+						// add 0ms to allow cog0 to trigger it!
+						cnt_start[q] = CNT + (ONE_MS * 0);
+						state[q] = STATE_PULSE_FIRE;
+					}
+					else
+					{
+						// switch not pressed, turn off now
+						SPINS(XCOGX_IDX) &= ~pinflags;
+						state[q] = STATE_NOTHING;
+					}
+					break;
+
+				case STATE_PULSE_FIRE:
+					// go back to power on for short time, power on for Z ms
+					if ((CNT - cnt_start[q]) > pulse_hold_time[q])
+					{
+						// we have been on for Y ms now turn it off and repeat!
+						SPINS(XCOGX_IDX) &= ~pinflags;
+
+						// add 0ms to allow cog0 to trigger it!
+						cnt_start[q] = CNT + (ONE_MS * 0);
+						state[q] = STATE_PULSE_PAUSE;
+					}
+					break;
+
+				case STATE_DONE:
+					// do nothing while pin is high.
+					// we have fired and completed.
+					break;
+			}
+		}
+	}
+}
+
