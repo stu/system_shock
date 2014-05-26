@@ -7,10 +7,10 @@
 struct solenoid_mailbox cogdata[7];
 
 // configuration set over the wire by the master control board
-HUBDATA volatile uint16_t initial_pulse_time_min[MAX_SOL];
-HUBDATA volatile uint16_t initial_pulse_time_max[MAX_SOL];
-HUBDATA volatile uint16_t pulse_pause_time[MAX_SOL];
-HUBDATA volatile uint16_t pulse_hold_time[MAX_SOL];
+HUBDATA volatile uint32_t initial_pulse_time_min[MAX_SOL];
+HUBDATA volatile uint32_t initial_pulse_time_max[MAX_SOL];
+HUBDATA volatile uint32_t pulse_pause_time[MAX_SOL];
+HUBDATA volatile uint32_t pulse_hold_time[MAX_SOL];
 
 // These change each time coils fire
 HUBDATA volatile uint32_t state[MAX_SOL];
@@ -234,10 +234,10 @@ int main (int argc, char *argv[])
 			case CMD_SETUP_SOL:
 				c1 = read_command_word(0); // solenoid in 16bits
 
-				initial_pulse_time_min[c1] = read_command_word(0);
-				initial_pulse_time_max[c1] = read_command_word(0);
-				pulse_pause_time[c1] = read_command_word(0);
-				pulse_hold_time[c1] = read_command_word(0);
+				initial_pulse_time_min[c1] = ONE_MS * read_command_word(0);
+				initial_pulse_time_max[c1] = ONE_MS * read_command_word(0);
+				pulse_pause_time[c1] = ONE_MS * read_command_word(0);
+				pulse_hold_time[c1] = ONE_MS * read_command_word(0);
 				break;
 
 			case CMD_SWITCHES:

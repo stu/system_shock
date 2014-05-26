@@ -28,10 +28,10 @@ struct solenoid_mailbox
 };
 
 // configuration data
-extern HUBDATA volatile uint16_t initial_pulse_time_min[MAX_SOL];
-extern HUBDATA volatile uint16_t initial_pulse_time_max[MAX_SOL];
-extern HUBDATA volatile uint16_t pulse_pause_time[MAX_SOL];
-extern HUBDATA volatile uint16_t pulse_hold_time[MAX_SOL];
+extern HUBDATA volatile uint32_t initial_pulse_time_min[MAX_SOL];
+extern HUBDATA volatile uint32_t initial_pulse_time_max[MAX_SOL];
+extern HUBDATA volatile uint32_t pulse_pause_time[MAX_SOL];
+extern HUBDATA volatile uint32_t pulse_hold_time[MAX_SOL];
 
 // our runtime changing data
 extern HUBDATA volatile uint32_t state[MAX_SOL];

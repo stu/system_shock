@@ -61,7 +61,7 @@ _NATIVE void main (void *mailbox)
 
 					// hold start... not necesarily when triggered!
 					// add 0ms to allow cog0 to trigger it!
-					cnt_start[q] = CNT + (ONE_MS * 0);
+					cnt_start[q] = CNT + (ONE_MS * 1);
 					state[q] = STATE_FIRING;
 
 					// fall through the case into next step. dont break  here.
@@ -88,7 +88,7 @@ _NATIVE void main (void *mailbox)
 								SPINS(XCOGX_IDX) &= ~pinflags;
 
 								// add 0ms to allow cog0 to trigger it!
-								cnt_start[q] = CNT + (ONE_MS * 0);
+								cnt_start[q] = CNT + (ONE_MS * 1);
 							}
 						}
 						else
@@ -110,7 +110,7 @@ _NATIVE void main (void *mailbox)
 						SPINS(XCOGX_IDX) |= pinflags;
 
 						// add 0ms to allow cog0 to trigger it!
-						cnt_start[q] = CNT + (ONE_MS * 0);
+						cnt_start[q] = CNT + (ONE_MS * 1);
 						state[q] = STATE_PULSE_FIRE;
 					}
 					else
@@ -129,7 +129,7 @@ _NATIVE void main (void *mailbox)
 						SPINS(XCOGX_IDX) &= ~pinflags;
 
 						// add 0ms to allow cog0 to trigger it!
-						cnt_start[q] = CNT + (ONE_MS * 0);
+						cnt_start[q] = CNT + (ONE_MS * 1);
 						state[q] = STATE_PULSE_PAUSE;
 					}
 					break;
