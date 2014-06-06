@@ -1,6 +1,5 @@
 System Shock
 ============
-
 System Shock is an Open Source Pinball controller system consisting of hardware schematics and source code to drive the system.
 
 Current Status
@@ -10,9 +9,11 @@ Current Status
 
 Licenses
 ========
+### Software
 All software and documentation is licensed under the GNU GPL v2
 (see ./gpl-v2.txt)
 
+### Hardware
 All hardware schematics are licensed under the CERN Open Hardware License v1.2
 (see cern_ohl_v_1_2.txt)
 
@@ -20,13 +21,13 @@ All hardware schematics are licensed under the CERN Open Hardware License v1.2
 Revision History
 ================
 
-20140524
+### 20140605
+* Rerouted solenoid driver board
+* Exported gerbers + Excellon drill file for solenoid driver
+
+### 20140524
 
 * Expose to github
 * Copy solenoid driver code and schematics over
 * Hack up parts of master document into solenoid documentation
-
-
-
-
 
