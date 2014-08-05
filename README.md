@@ -30,6 +30,8 @@ All hardware schematics are licensed under the CERN Open Hardware License v1.2
 
 Revision History
 ================
+### 20140805
+* Tagged revision 1 of the solenoid board as I sent it to the fab to get made
 
 ### 20140605
 * Rerouted solenoid driver board
